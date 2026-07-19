@@ -1,0 +1,13 @@
+SMF Praxis Medical vertical — Medical Office compliance pack
+
+Copyright (c) 2026 SMF Works. All rights reserved.
+
+This software is proprietary and confidential. Unauthorized copying,
+modification, merger, publication, distribution, sublicensing, and/or
+selling of this software, via any medium, is strictly prohibited.
+
+This vertical build depends on the open-core Praxis base (praxis-agent,
+MIT-licensed) but the vertical-specific code herein is commercial and
+not covered by the MIT license of the base.
+
+For licensing inquiries: liam@smfworks.com

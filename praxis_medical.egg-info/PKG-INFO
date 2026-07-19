@@ -1,0 +1,61 @@
+Metadata-Version: 2.4
+Name: praxis-medical
+Version: 0.1.0
+Summary: SMF Praxis Medical vertical — Medical Office compliance pack (private, commercial)
+Author-email: SMF Works <liam@smfworks.com>
+License: Commercial — SMF Works. All rights reserved.
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Healthcare Industry
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: License :: Other/Proprietary License
+Classifier: Private :: Do Not Upload
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: praxis-agent>=0.28.33
+Provides-Extra: dev
+Requires-Dist: pytest>=7; extra == "dev"
+Requires-Dist: ruff; extra == "dev"
+Requires-Dist: mypy; extra == "dev"
+Dynamic: license-file
+
+# SMF Praxis Medical vertical
+
+**Private, commercial.** Medical Office compliance vertical for the [Praxis](https://github.com/smfworks/smf-praxis) autonomous agent platform.
+
+## Status
+
+Extracted from `smf-praxis` base on 2026-07-19 during the vertical-extraction cutover (option 2b-iii). Depends on the open-core base (`praxis-agent`) as a runtime dependency.
+
+## What's inside
+
+- **8 compliance modules** — `ambient_documentation`, `clinical_attestation`, `controlled_substances`, `hipaa_governance`, `minor_consent`, `portal_triage`, `records_retention`, `telemedicine_gate`
+- **Medical Office pack** — `packs/medical_office/` (manifest + knowledge base), persona + authority policy for `verticals/medical/`
+- **5 vertical eval cases** — never-write-chart, telemedicine gate, controlled substance, minor consent, portal triage
+- **13-state coverage** — FL, GA, SC, TN, VA, WV, MD, PA, OH, NJ, NY, CT, MA
+- **HIPAA federal floor** + state-specific telemedicine licensure, controlled-substance PMP, minor-consent, records-retention
+
+## Installation
+
+```bash
+pip install praxis-agent          # open-core base (public, MIT)
+pip install praxis-medical        # this vertical (private, commercial)
+```
+
+Importing `hybridagent_praxis_medical` auto-registers the Medical Office vertical with the base's plugin registry.
+
+## Compliance posture
+
+**Enforced.** READ + DRAFT autonomous; SEND + DESTRUCTIVE held for human approval. "Never write to the chart" + "do not diagnose" guardrails. HIPAA minimum-necessary + accounting-of-disclosures + breach-response workflow.
+
+## License
+
+Commercial — SMF Works. All rights reserved. Not for redistribution. See `LICENSE`.
+
+## Origin
+
+Carved from `smfworks/smf-praxis` commits `b609888`…`0d221ec` (Medical Office pack, v0.28.20–v0.28.29). Pre-cutover history preserved in private archive `smfworks/smf-praxis-legacy-archive`.
