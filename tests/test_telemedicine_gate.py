@@ -11,7 +11,7 @@ from datetime import datetime
 import pytest
 
 from hybridagent.jurisdictions import get_medical_profile, registered_states
-from hybridagent.telemedicine_gate import (
+from hybridagent_praxis_medical.modules.telemedicine_gate import (
     FLTelehealthRegistration,
     PhysicianLicense,
     TelemedicineGateError,

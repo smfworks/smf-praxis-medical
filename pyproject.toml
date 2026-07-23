@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "praxis-medical"
-version = "0.1.0"
+version = "0.1.1"
 description = "SMF Praxis Medical vertical — Medical Office compliance pack (private, commercial)"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -22,11 +22,14 @@ classifiers = [
     "Private :: Do Not Upload",
 ]
 dependencies = [
-    "praxis-agent>=0.28.33",
+    "praxis-agent>=0.29.1",
 ]
 
 [project.optional-dependencies]
 dev = ["pytest>=7", "ruff", "mypy"]
+
+[project.entry-points."praxis.verticals"]
+medical = "hybridagent_praxis_medical:register"
 
 [tool.setuptools.packages.find]
 include = ["hybridagent_praxis_medical*"]

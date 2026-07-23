@@ -125,19 +125,19 @@ def _parse_expiry(iso_date: str) -> float:
 
 
 def _license_current(lic: PhysicianLicense, *, now: float) -> bool:
-    if not lic.active or not lic.license_number:
+    if not lic.active or not lic.license_number.strip() or not lic.physician_id.strip():
         return False
     exp = _parse_expiry(lic.expires)
-    if exp and exp < now:
+    if exp <= 0.0 or exp < now:
         return False
     return True
 
 
 def _fl_registration_current(reg: FLTelehealthRegistration, *, now: float) -> bool:
-    if not reg.active or not reg.registration_number:
+    if not reg.active or not reg.registration_number.strip() or not reg.physician_id.strip():
         return False
     exp = _parse_expiry(reg.expires)
-    if exp and exp < now:
+    if exp <= 0.0 or exp < now:
         return False
     return True
 

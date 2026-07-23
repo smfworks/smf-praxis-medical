@@ -91,6 +91,13 @@ class AttestationLedger:
     def register_draft(self, draft: ClinicalDraft) -> None:
         """Register a draft so it can be attested. A draft must be registered
         before an attestation can be recorded for it."""
+        if not all((draft.draft_id.strip(), draft.chart_id.strip(),
+                    draft.patient_id.strip(), draft.content_hash.strip())):
+            raise AttestationError("draft identity and content_hash are required")
+        existing = self._drafts.get(draft.draft_id)
+        if existing is not None and existing != draft:
+            raise AttestationError(
+                f"draft {draft.draft_id} is immutable and cannot be overwritten")
         self._drafts[draft.draft_id] = draft
 
     def get_draft(self, draft_id: str) -> ClinicalDraft | None:
@@ -102,14 +109,19 @@ class AttestationLedger:
         if attestation.draft_id not in self._drafts:
             raise AttestationError(
                 f"cannot attest draft {attestation.draft_id} — not registered")
-        # a draft may have at most one signed/amended attestation (the
-        # sign-off is the terminal state); re-attesting after a signed/amended
-        # is a no-op (idempotent) rather than an error, to support retries
-        existing = [a for a in self._attestations
-                    if a.draft_id == attestation.draft_id
-                    and a.attestation_type in ("signed", "amended")]
-        if existing and attestation.attestation_type in ("signed", "amended"):
-            return existing[0]
+        if not all((attestation.attestation_id.strip(),
+                    attestation.physician_id.strip())) or attestation.attested_at <= 0:
+            raise AttestationError("attestation identity, physician, and timestamp are required")
+        if attestation.attestation_type not in {"signed", "amended", "rejected"}:
+            raise AttestationError("unsupported attestation type")
+        if attestation.attestation_type == "amended" and not attestation.edit_hash.strip():
+            raise AttestationError("amended attestation requires final edit_hash")
+        existing = [a for a in self._attestations if a.draft_id == attestation.draft_id]
+        if existing:
+            if attestation in existing:
+                return attestation
+            raise AttestationError(
+                f"draft {attestation.draft_id} already has a terminal attestation")
         self._attestations.append(attestation)
         return attestation
 

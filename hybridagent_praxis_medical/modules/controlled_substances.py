@@ -138,16 +138,31 @@ def check_prescriber_authority(
     import time as _t
     now_dt = _t.time() if now == 0.0 else now
     from datetime import datetime
+    if authority.physician_id != rx.physician_id:
+        findings.append(GuardrailFinding(
+            "critical", "authority_physician_mismatch",
+            "prescriber authority belongs to a different physician", rx.state,
+        ))
+    if authority.state.upper() != rx.state.upper():
+        findings.append(GuardrailFinding(
+            "critical", "authority_state_mismatch",
+            "prescriber authority is for a different state", rx.state,
+        ))
     try:
         dea_exp = datetime.fromisoformat(authority.dea_expires).timestamp()
     except (ValueError, TypeError):
         dea_exp = 0.0
-    if not authority.dea_number:
+    if not authority.dea_number.strip():
         findings.append(GuardrailFinding(
             "critical", "no_dea_registration",
             "physician has no DEA registration — cannot prescribe controlled substances",
             rx.state))
-    elif dea_exp and dea_exp < now_dt:
+    elif dea_exp <= 0.0:
+        findings.append(GuardrailFinding(
+            "critical", "dea_expiry_invalid",
+            "physician's DEA expiration date is missing or invalid", rx.state,
+        ))
+    elif dea_exp < now_dt:
         findings.append(GuardrailFinding(
             "critical", "dea_expired",
             f"physician's DEA registration expired {authority.dea_expires}",
@@ -166,7 +181,11 @@ def check_prescriber_authority(
                     f"state controlled-substance authority expired {authority.state_cs_expires}",
                     rx.state))
         except (ValueError, TypeError):
-            pass
+            findings.append(GuardrailFinding(
+                "high", "state_cs_expiry_invalid",
+                "state controlled-substance authority expiration is invalid",
+                rx.state,
+            ))
     return findings
 
 
@@ -176,14 +195,27 @@ def check_pmp_query(rx: RxDraft, pmp: PmpQueryResult | None) -> list[GuardrailFi
     A missing query is a high finding (the physician must review)."""
     findings: list[GuardrailFinding] = []
     prof = get_medical_profile(rx.state)
-    if prof is None or not prof.pmp_query_required:
-        return findings  # no PMP mandate (rare)
+    if prof is None:
+        return [GuardrailFinding(
+            "critical", "unknown_jurisdiction",
+            "cannot evaluate PMP requirement for an unsupported jurisdiction", rx.state,
+        )]
+    if not prof.pmp_query_required:
+        return findings
     if pmp is None or not pmp.queried:
         findings.append(GuardrailFinding(
             "high", "pmp_not_queried",
             f"PMP query not run before this {rx.state} controlled-substance Rx "
             f"(required by state)",
             rx.state))
+    elif (pmp.patient_id != rx.patient_id or
+          pmp.state.upper() != rx.state.upper() or
+          not pmp.query_id.strip() or
+          pmp.queried_at <= 0):
+        findings.append(GuardrailFinding(
+            "high", "pmp_query_mismatch",
+            "PMP query is not bound to this patient, state, and request", rx.state,
+        ))
     elif pmp.multiple_prescribers or pmp.prior_opioid_scripts > 3:
         findings.append(GuardrailFinding(
             "medium", "pmp_history_flag",
@@ -204,7 +236,10 @@ def check_initial_opioid_limit(rx: RxDraft) -> list[GuardrailFinding]:
         return findings  # limit applies to initial opioid Rx only
     prof = get_medical_profile(rx.state)
     if prof is None:
-        return findings
+        return [GuardrailFinding(
+            "critical", "unknown_jurisdiction",
+            "cannot evaluate opioid limits for an unsupported jurisdiction", rx.state,
+        )]
     limit = prof.initial_opioid_rx_limit_days
     if limit > 0 and rx.days_supply > limit:
         findings.append(GuardrailFinding(

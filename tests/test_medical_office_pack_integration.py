@@ -7,44 +7,46 @@ and pack persona/knowledge coverage.
 """
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from hybridagent import config as cfg
 from hybridagent import pack
-from hybridagent.clinical_attestation import (
+from hybridagent_praxis_medical.modules.clinical_attestation import (
     AttestationError,
     AttestationLedger,
     ClinicalAttestation,
     ClinicalDraft,
     require_attestation,
 )
-from hybridagent.controlled_substances import (
+from hybridagent_praxis_medical.modules.controlled_substances import (
     PmpQueryResult,
     PrescriberAuthority,
     RxDraft,
     check_controlled_substance_rx,
 )
 from hybridagent.jurisdictions import get_medical_profile, registered_states
-from hybridagent.minor_consent import (
+from hybridagent_praxis_medical.modules.minor_consent import (
     AccessRequest,
     MinorEncounter,
     check_minor_record_access,
 )
-from hybridagent.portal_triage import (
+from hybridagent_praxis_medical.modules.portal_triage import (
     AUTONOMOUS_ADMIN_TEMPLATES,
     PortalMessage,
     PortalReplyDraft,
     triage_portal_message,
 )
-from hybridagent.records_retention import (
+from hybridagent_praxis_medical.modules.records_retention import (
     HIPAA_ACCESS_DAYS_FLOOR,
     MedicalRecordSet,
     PatientAccessRequest,
     assess_retention,
     open_patient_access_request,
 )
-from hybridagent.security_attestation import SecurityControls, attest
-from hybridagent.telemedicine_gate import (
+from hybridagent_praxis_medical.modules.security_attestation import SecurityControls, attest
+from hybridagent_praxis_medical.modules.telemedicine_gate import (
     FLTelehealthRegistration,
     PhysicianLicense,
     TeleVisit,
@@ -289,8 +291,9 @@ def test_medical_office_persona_guardrails(tmp_path, monkeypatch):
 
 def test_medical_office_knowledge_covers_13_states(tmp_path, monkeypatch):
     _home(tmp_path, monkeypatch)
-    from hybridagent.pack import bundled_packs_dir
-    kb = (bundled_packs_dir() / "medical_office" / "knowledge.md").read_text()
+    loaded = pack.load_pack("medical_office")
+    assert loaded is not None
+    kb = (Path(loaded.path) / "knowledge.md").read_text(encoding="utf-8")
     for state in ("FL", "GA", "SC", "TN", "VA", "WV", "MD", "PA",
                   "OH", "NJ", "NY", "CT", "MA"):
         assert state in kb, f"{state} missing from knowledge base"

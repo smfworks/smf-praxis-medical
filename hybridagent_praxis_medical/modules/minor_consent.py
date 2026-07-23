@@ -162,9 +162,16 @@ def is_confidential_minor_service(
     prof = get_medical_profile(encounter.state)
     if prof is None:
         return False
+    aliases = {
+        "hiv": "sti", "std": "sti", "mental_health": "behavioral_health",
+        "substance": "substance_use", "sud": "substance_use",
+    }
     category = encounter.service_category.lower().strip()
+    category = aliases.get(category, category)
     services = {s.lower() for s in prof.minor_consent_services}
-    return encounter.self_consented and category in services
+    return encounter.self_consented and (
+        category in services or category not in {"general", "routine", "other", ""}
+    )
 
 
 def _authorization_covers(
@@ -176,6 +183,9 @@ def _authorization_covers(
 ) -> bool:
     """True if this authorization unlocks the request."""
     if auth.revoked:
+        return False
+    if (not auth.authorization_id.strip() or auth.authorized_at <= 0 or
+            auth.authorized_at > now):
         return False
     if auth.patient_id != encounter.patient_id:
         return False
@@ -221,6 +231,15 @@ def check_minor_record_access(
     now_ts = _t.time() if now == 0.0 else now
     report = AccessReport(request=request, encounter=encounter)
     state = encounter.state.upper()
+
+    if (request.encounter_id != encounter.encounter_id or
+            not request.request_id.strip() or not request.requester_id.strip() or
+            not encounter.encounter_id.strip() or not encounter.patient_id.strip()):
+        report.findings.append(AccessFinding(
+            "critical", "identity_mismatch",
+            "request and encounter identities are missing or do not match", state,
+        ))
+        return report
 
     prof = get_medical_profile(state)
     if prof is None:
@@ -272,10 +291,12 @@ def check_minor_record_access(
 
     # Minor patient themselves may always access their own records
     if role == "minor_patient":
-        report.allowed = True
+        report.allowed = request.requester_id == encounter.patient_id
         report.findings.append(AccessFinding(
-            "info", "minor_self_access",
-            "minor patient accessing their own confidential records — allowed",
+            "info" if report.allowed else "critical",
+            "minor_self_access" if report.allowed else "minor_identity_mismatch",
+            "minor patient accessing their own confidential records — allowed"
+            if report.allowed else "requester identity does not match the patient",
             state,
         ))
         return report

@@ -27,6 +27,7 @@ the medical vertical needs that the existing substrate doesn't provide:
 """
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Literal
 
@@ -110,15 +111,32 @@ def check_minimum_necessary(req: MinimumNecessaryRequest) -> list[str]:
     allowed = _PURPOSE_FIELDS.get(req.purpose, frozenset())
     requested = {f.name for f in req.requested_fields}
 
+    role_purposes = {
+        "physician": {"treatment", "healthcare_operations"},
+        "nurse": {"treatment", "healthcare_operations"},
+        "billing": {"payment"},
+        "admin": {"payment", "healthcare_operations"},
+        "praxis": {"treatment", "healthcare_operations"},
+    }
+    allowed_purposes = role_purposes.get(req.requester_role)
+    if allowed_purposes is None or req.purpose not in allowed_purposes:
+        findings.append(
+            f"role_purpose_mismatch: {req.requester_role!r} is not authorized "
+            f"for purpose {req.purpose!r}")
+
     # over-broad: requested fields not in the allowed set for this purpose
     extra = requested - allowed
     if extra and req.purpose in _PURPOSE_FIELDS:
         findings.append(
             f"over_broad: fields {sorted(extra)} not appropriate for "
             f"purpose '{req.purpose}' (minimum necessary = {sorted(allowed)})")
+    elif req.purpose not in _PURPOSE_FIELDS:
+        findings.append(
+            f"non_routine_authorization_required: purpose {req.purpose!r} "
+            "requires a separately validated legal basis and scoped field set")
 
     # highly-sensitive fields require treatment purpose (not payment/operations)
-    if req.purpose in ("payment", "healthcare_operations"):
+    if req.purpose != "treatment":
         sensitive = [f.name for f in req.requested_fields
                      if f.sensitivity == "highly_sensitive"
                      or f.name in _HIGHLY_SENSITIVE]
@@ -168,9 +186,22 @@ class AccountingOfDisclosures:
         """Record a disclosure. Returns the recorded entry if it's non-routine
         (and thus requires an accounting entry), or None if it's a routine
         TPO disclosure (treatment/payment/operations — no accounting entry)."""
+        valid_purposes = {
+            "treatment", "payment", "healthcare_operations", *NON_ROUTINE_PURPOSES,
+        }
+        if disclosure.purpose not in valid_purposes:
+            raise ValueError(f"unsupported disclosure purpose: {disclosure.purpose!r}")
+        if not all((disclosure.disclosure_id.strip(), disclosure.patient_id.strip(),
+                    disclosure.disclosed_to.strip(), disclosure.disclosed_by.strip())):
+            raise ValueError("disclosure identity, patient, recipient, and actor are required")
+        if disclosure.disclosed_at <= 0 or not disclosure.phi_fields:
+            raise ValueError("disclosure timestamp and PHI fields are required")
+        if disclosure.purpose == "other" and not disclosure.detail.strip():
+            raise ValueError("other disclosure purpose requires detail")
         if disclosure.purpose in NON_ROUTINE_PURPOSES:
-            self._entries.append(disclosure)
-            return disclosure
+            snapshot = deepcopy(disclosure)
+            self._entries.append(snapshot)
+            return snapshot
         return None  # routine TPO — no accounting entry
 
     def for_patient(self, patient_id: str,
@@ -178,12 +209,12 @@ class AccountingOfDisclosures:
         """Produce the accounting for a patient (optionally since a timestamp).
         This is what the practice produces when a patient requests their
         accounting of disclosures under 45 CFR §164.528."""
-        return [e for e in self._entries
-                if e.patient_id == patient_id and e.disclosed_at >= since]
+        return deepcopy([e for e in self._entries
+                         if e.patient_id == patient_id and e.disclosed_at >= since])
 
     def all_entries(self) -> list[PhiDisclosure]:
         """All entries (for audit)."""
-        return list(self._entries)
+        return deepcopy(self._entries)
 
     def count(self, patient_id: str | None = None) -> int:
         if patient_id is None:

@@ -1,4 +1,4 @@
-from ...authority import AuthorityPolicy
+from hybridagent.authority import AuthorityPolicy
 
 
 def policy(jurisdiction: str, population: str) -> AuthorityPolicy:
