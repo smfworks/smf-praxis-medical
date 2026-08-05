@@ -30,7 +30,7 @@ _MEDICAL_OFFICE_SPEC = VerticalSpec(
     compliance_mode="enforced",
     autonomous={RiskClass.READ, RiskClass.DRAFT},
     held={RiskClass.SEND, RiskClass.DESTRUCTIVE},
-    version="0.1.2",
+    version="0.2.0",
 )
 
 _MEDICAL_CLINICAL_SPEC = VerticalSpec(
@@ -39,7 +39,7 @@ _MEDICAL_CLINICAL_SPEC = VerticalSpec(
     compliance_mode="enforced",
     autonomous={RiskClass.READ},
     held={RiskClass.SEND, RiskClass.DESTRUCTIVE},
-    version="0.1.2",
+    version="0.2.0",
 )
 
 

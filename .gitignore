@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Build / packaging
+*.egg-info/
+*.egg
+build/
+dist/
+.eggs/
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.hypothesis/
+
+# Editable install artifacts
+*.pth
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Hermes release-gate state (session-local, must not be committed)
+.hermes/
+
+# Virtual environment
+.venv/
