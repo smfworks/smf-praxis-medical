@@ -309,10 +309,10 @@ def render_ambient_session(session: AmbientSession) -> str:
         f"Session: {session.session_id} | Visit: {session.visit_id}",
         f"Patient: {session.patient_id} | Physician: {session.physician_id}",
         f"State: {session.state} | Status: {session.status}",
-        f"Consent: {session.consent_id or 'none'} | "
-        f"Draft: {session.draft_id or 'none'}",
-        f"Audio retained: {session.audio_retained} "
-        f"({session.audio_record_id or 'n/a'})",
+        (f"Consent: {session.consent_id or 'none'} | "
+        f"Draft: {session.draft_id or 'none'}"),
+        (f"Audio retained: {session.audio_retained} "
+        f"({session.audio_record_id or 'n/a'})"),
         "=" * 60,
     ]
     for f in session.findings:

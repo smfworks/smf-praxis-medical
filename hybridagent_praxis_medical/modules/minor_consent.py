@@ -384,14 +384,14 @@ def render_access_report(report: AccessReport) -> str:
     enc = report.encounter
     lines = [
         "Minor-Consent Record Access Gate Report",
-        f"Request: {req.request_id} | Channel: {req.channel} | "
-        f"Role: {req.requester_role} ({req.requester_id})",
-        f"Encounter: {enc.encounter_id} | Patient: {enc.patient_id} | "
-        f"Age: {enc.patient_age} | State: {enc.state}",
-        f"Service: {enc.service_category} | Self-consented: "
-        f"{enc.self_consented}",
-        f"Decision: {'ALLOWED' if report.allowed else 'DENIED'} "
-        f"(confidential={report.confidential})",
+        (f"Request: {req.request_id} | Channel: {req.channel} | "
+        f"Role: {req.requester_role} ({req.requester_id})"),
+        (f"Encounter: {enc.encounter_id} | Patient: {enc.patient_id} | "
+        f"Age: {enc.patient_age} | State: {enc.state}"),
+        (f"Service: {enc.service_category} | Self-consented: "
+        f"{enc.self_consented}"),
+        (f"Decision: {'ALLOWED' if report.allowed else 'DENIED'} "
+        f"(confidential={report.confidential})"),
         "=" * 60,
     ]
     if not report.findings:

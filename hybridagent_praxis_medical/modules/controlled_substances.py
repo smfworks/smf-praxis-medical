@@ -296,8 +296,8 @@ def render_guardrail_report(report: GuardrailReport) -> str:
     rx = report.draft
     lines = ["Controlled-Substance Rx Guardrail Report",
              f"Draft: {rx.draft_id} | Patient: {rx.patient_id} | State: {rx.state}",
-             f"Drug: {rx.drug_name} (Schedule {rx.schedule}) | "
-             f"Days: {rx.days_supply} | MME/day: {rx.mme_per_day}",
+             (f"Drug: {rx.drug_name} (Schedule {rx.schedule}) | "
+             f"Days: {rx.days_supply} | MME/day: {rx.mme_per_day}"),
              "=" * 60]
     if not report.findings:
         lines.append("No guardrail findings — within state limits + CDC guidelines.")

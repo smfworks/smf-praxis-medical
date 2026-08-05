@@ -8,7 +8,6 @@ from these profiles instead of hardcoding them.
 from __future__ import annotations
 
 import pytest
-
 from hybridagent.jurisdictions import (
     MedicalProfile,
     get_medical_profile,

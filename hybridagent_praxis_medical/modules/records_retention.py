@@ -152,8 +152,8 @@ def assess_retention(
             retention_years=0,
             dispose_after=0.0,
             findings=[
-                f"state {state!r} not in the 13-state medical registry — "
-                f"cannot compute retention"
+                (f"state {state!r} not in the 13-state medical registry — "
+                f"cannot compute retention")
             ],
         )
 
@@ -163,8 +163,7 @@ def assess_retention(
         # "until age 21" style rules: if DOB known, keep until max(dispose, age 21)
         if record.patient_dob > 0:
             age_21 = record.patient_dob + _years_to_seconds(21)
-            if age_21 > dispose_after:
-                dispose_after = age_21
+            dispose_after = max(dispose_after, age_21)
         citation = prof.record_retention_citation
         rule_note = prof.record_retention_minor_rule
     else:
@@ -339,12 +338,12 @@ def render_retention_assessment(assessment: RetentionAssessment) -> str:
     rec = assessment.record
     lines = [
         "Medical Records Retention Assessment",
-        f"Record: {rec.record_id} | Patient: {rec.patient_id} | "
-        f"State: {rec.state}",
-        f"Last visit: {rec.last_visit_at} | Minor at care: "
-        f"{rec.patient_was_minor}",
-        f"Status: {assessment.status} | Retention years: "
-        f"{assessment.retention_years}",
+        (f"Record: {rec.record_id} | Patient: {rec.patient_id} | "
+        f"State: {rec.state}"),
+        (f"Last visit: {rec.last_visit_at} | Minor at care: "
+        f"{rec.patient_was_minor}"),
+        (f"Status: {assessment.status} | Retention years: "
+        f"{assessment.retention_years}"),
         f"Dispose after: {assessment.dispose_after}",
         "=" * 60,
     ]
@@ -366,12 +365,12 @@ def render_access_workflow(workflow: AccessWorkflow) -> str:
     req = workflow.request
     lines = [
         "Patient Access Request Workflow",
-        f"Request: {req.request_id} | Patient: {req.patient_id} | "
-        f"State: {req.state}",
-        f"Requested at: {req.requested_at} | Scope: {req.scope} | "
-        f"Channel: {req.channel}",
-        f"Deadline: {workflow.deadline_at} ({workflow.access_days} days) | "
-        f"Status: {workflow.status}",
+        (f"Request: {req.request_id} | Patient: {req.patient_id} | "
+        f"State: {req.state}"),
+        (f"Requested at: {req.requested_at} | Scope: {req.scope} | "
+        f"Channel: {req.channel}"),
+        (f"Deadline: {workflow.deadline_at} ({workflow.access_days} days) | "
+        f"Status: {workflow.status}"),
         f"Citation: {workflow.citation}",
         "=" * 60,
     ]

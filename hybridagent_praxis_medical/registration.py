@@ -24,7 +24,6 @@ from hybridagent.verticals.registry import (
     register_vertical_spec,
 )
 
-
 _MEDICAL_OFFICE_SPEC = VerticalSpec(
     name="medical_office",
     persona_keyword="medical office",

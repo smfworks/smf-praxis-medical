@@ -10,9 +10,10 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-
 from hybridagent import config as cfg
 from hybridagent import pack
+from hybridagent.jurisdictions import get_medical_profile, registered_states
+
 from hybridagent_praxis_medical.modules.clinical_attestation import (
     AttestationError,
     AttestationLedger,
@@ -26,7 +27,6 @@ from hybridagent_praxis_medical.modules.controlled_substances import (
     RxDraft,
     check_controlled_substance_rx,
 )
-from hybridagent.jurisdictions import get_medical_profile, registered_states
 from hybridagent_praxis_medical.modules.minor_consent import (
     AccessRequest,
     MinorEncounter,
@@ -45,7 +45,10 @@ from hybridagent_praxis_medical.modules.records_retention import (
     assess_retention,
     open_patient_access_request,
 )
-from hybridagent_praxis_medical.modules.security_attestation import SecurityControls, attest
+from hybridagent_praxis_medical.modules.security_attestation import (
+    SecurityControls,
+    attest,
+)
 from hybridagent_praxis_medical.modules.telemedicine_gate import (
     FLTelehealthRegistration,
     PhysicianLicense,

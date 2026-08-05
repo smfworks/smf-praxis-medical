@@ -128,18 +128,14 @@ def _license_current(lic: PhysicianLicense, *, now: float) -> bool:
     if not lic.active or not lic.license_number.strip() or not lic.physician_id.strip():
         return False
     exp = _parse_expiry(lic.expires)
-    if exp <= 0.0 or exp < now:
-        return False
-    return True
+    return not (exp <= 0.0 or exp < now)
 
 
 def _fl_registration_current(reg: FLTelehealthRegistration, *, now: float) -> bool:
     if not reg.active or not reg.registration_number.strip() or not reg.physician_id.strip():
         return False
     exp = _parse_expiry(reg.expires)
-    if exp <= 0.0 or exp < now:
-        return False
-    return True
+    return not (exp <= 0.0 or exp < now)
 
 
 def check_telemedicine_license(
@@ -324,11 +320,11 @@ def render_gate_report(report: GateReport) -> str:
     v = report.visit
     lines = [
         "Telemedicine Cross-State License Gate Report",
-        f"Visit: {v.visit_id} | Physician: {v.physician_id} | "
-        f"Patient: {v.patient_id}",
+        (f"Visit: {v.visit_id} | Physician: {v.physician_id} | "
+        f"Patient: {v.patient_id}"),
         f"Patient location: {v.patient_state} | Modality: {v.modality}",
-        f"Decision: {'ALLOWED' if report.allowed else 'BLOCKED'} "
-        f"(path={report.authority_path})",
+        (f"Decision: {'ALLOWED' if report.allowed else 'BLOCKED'} "
+        f"(path={report.authority_path})"),
         "=" * 60,
     ]
     if not report.findings:
