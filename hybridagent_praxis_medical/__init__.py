@@ -1,6 +1,6 @@
 """SMF Praxis Medical vertical — registration module.
 
-This package is the private paid Medical Office vertical build for Praxis.
+This package is the SMF Praxis medical compliance pack.
 It depends on the open-core ``smf-praxis`` base and registers the medical
 vertical's spec and eval cases with the base's
 :mod:`hybridagent.verticals.registry` on import.
@@ -8,7 +8,7 @@ vertical's spec and eval cases with the base's
 Installation::
 
     pip install smf-praxis            # open-core base (public, MIT)
-    pip install praxis-medical        # this vertical (private, commercial)
+    pip install praxis-medical        # SMF Praxis medical compliance pack
 
 Activating the vertical lights up:
 

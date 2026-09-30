@@ -1,10 +1,10 @@
 # SMF Praxis Medical vertical
 
-**Private, commercial.** Medical Office compliance vertical for the [Praxis](https://github.com/smfworks/smf-praxis) autonomous agent platform.
+Medical Office compliance pack for the [Praxis](https://github.com/smfworks/smf-praxis) autonomous agent platform.
 
 ## Status
 
-Extracted from `smf-praxis` base on 2026-07-19 during the vertical-extraction cutover (option 2b-iii). Depends on the open-core base (`praxis-agent`) as a runtime dependency.
+Extracted from `smf-praxis` base on 2026-07-19 during the vertical-extraction cutover. Depends on the open-core base (`praxis-agent`) as a runtime dependency.
 
 ## What's inside
 
@@ -18,7 +18,7 @@ Extracted from `smf-praxis` base on 2026-07-19 during the vertical-extraction cu
 
 ```bash
 pip install praxis-agent          # open-core base (public, MIT)
-pip install praxis-medical        # this vertical (private, commercial)
+pip install praxis-medical        # SMF Praxis medical compliance pack
 ```
 
 Importing `hybridagent_praxis_medical` auto-registers the Medical Office vertical with the base's plugin registry.
@@ -29,8 +29,6 @@ Importing `hybridagent_praxis_medical` auto-registers the Medical Office vertica
 
 ## License
 
-Commercial — SMF Works. All rights reserved. Not for redistribution. See `LICENSE`.
+This pack is MIT-licensed. See `LICENSE`.
 
-## Origin
-
-Carved from `smfworks/smf-praxis` commits `b609888`…`0d221ec` (Medical Office pack, v0.28.20–v0.28.29). Pre-cutover history preserved in private archive `smfworks/smf-praxis-legacy-archive`.
+This pack is informational tooling and is not legal or medical-compliance advice. Users should verify requirements with qualified counsel.
